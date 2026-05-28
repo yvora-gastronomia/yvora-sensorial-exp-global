@@ -1,3 +1,5 @@
+from typing import Any, Dict
+
 import streamlit as st
 
 
@@ -10,10 +12,12 @@ LANGUAGES = {
 }
 
 
-BASE_TRANSLATIONS = {
+UI_TEXT: Dict[str, Dict[str, str]] = {
     "pt": {
-        "welcome": "WELCOME",
+        "welcome": "BEM-VINDO",
         "intro": "Experiência sensorial",
+        "app_title": "Experiência Tábua YVORA",
+        "identify": "Identifique-se para iniciar a experiência",
         "start": "Entrar na experiência",
         "name": "Nome",
         "name_placeholder": "Digite seu nome",
@@ -40,10 +44,15 @@ BASE_TRANSLATIONS = {
         "cheese": "Queijo",
         "together": "Combinação",
         "together_note": "Experimente os elementos juntos",
+        "wine": "Vinho",
+        "drink": "Bebida",
+        "language": "Idioma",
     },
     "en": {
         "welcome": "WELCOME",
         "intro": "Sensory experience",
+        "app_title": "YVORA Board Experience",
+        "identify": "Identify yourself to start the experience",
         "start": "Enter the experience",
         "name": "Name",
         "name_placeholder": "Enter your name",
@@ -59,7 +68,7 @@ BASE_TRANSLATIONS = {
         "no_experience": "No experiences available.",
         "completed": "Tasting completed",
         "thanks": "Thank you for exploring the YVORA experience.",
-        "closing": "Now continue exploring your own favourite combinations.",
+        "closing": "Now continue exploring your favourite combinations.",
         "home": "Back to home",
         "ritual": "Sensory Ritual",
         "feedback": "How was this journey?",
@@ -70,18 +79,23 @@ BASE_TRANSLATIONS = {
         "cheese": "Cheese",
         "together": "Combination",
         "together_note": "Try the elements together",
+        "wine": "Wine",
+        "drink": "Drink",
+        "language": "Language",
     },
     "zh": {
-        "welcome": "WELCOME",
+        "welcome": "欢迎",
         "intro": "感官体验",
+        "app_title": "YVORA 风味体验拼盘",
+        "identify": "请填写信息以开始体验",
         "start": "进入体验",
         "name": "姓名",
         "name_placeholder": "请输入姓名",
         "phone": "电话",
         "phone_placeholder": "请输入电话",
-        "token": "令牌",
+        "token": "口令",
         "required": "请填写所有字段。",
-        "invalid": "令牌无效。",
+        "invalid": "口令无效。",
         "sheet_error": "表格访问错误",
         "welcome_guest": "欢迎，{name}",
         "available": "可用体验",
@@ -92,7 +106,7 @@ BASE_TRANSLATIONS = {
         "closing": "现在请自由探索您最喜欢的组合。",
         "home": "返回首页",
         "ritual": "感官仪式",
-        "feedback": "您觉得这一段如何？",
+        "feedback": "您觉得这一段体验如何？",
         "back": "返回",
         "next": "继续",
         "not_found": "未找到体验。",
@@ -100,10 +114,15 @@ BASE_TRANSLATIONS = {
         "cheese": "奶酪",
         "together": "组合",
         "together_note": "一起品尝这些元素",
+        "wine": "葡萄酒",
+        "drink": "饮品",
+        "language": "语言",
     },
     "ja": {
-        "welcome": "WELCOME",
+        "welcome": "ようこそ",
         "intro": "感覚体験",
+        "app_title": "YVORA テイスティングボード体験",
+        "identify": "体験を始めるために情報を入力してください",
         "start": "体験を始める",
         "name": "お名前",
         "name_placeholder": "お名前を入力してください",
@@ -112,14 +131,14 @@ BASE_TRANSLATIONS = {
         "token": "トークン",
         "required": "すべての項目を入力してください。",
         "invalid": "無効なトークンです。",
-        "sheet_error": "シートアクセスエラー",
+        "sheet_error": "シートへのアクセスエラー",
         "welcome_guest": "{name} さん、ようこそ",
         "available": "利用可能な体験",
         "journey": "旅",
         "no_experience": "利用可能な体験がありません。",
         "completed": "テイスティング完了",
-        "thanks": "YVORA体験をご利用いただきありがとうございます。",
-        "closing": "これからは自由にお好みの組み合わせを探してください。",
+        "thanks": "YVORA体験をお楽しみいただき、ありがとうございます。",
+        "closing": "ここからは、お好みの組み合わせを自由に探してください。",
         "home": "最初に戻る",
         "ritual": "感覚の儀式",
         "feedback": "この旅はいかがでしたか？",
@@ -129,11 +148,16 @@ BASE_TRANSLATIONS = {
         "meat": "肉",
         "cheese": "チーズ",
         "together": "組み合わせ",
-        "together_note": "要素を一緒に試してください",
+        "together_note": "要素を一緒に味わってください",
+        "wine": "ワイン",
+        "drink": "飲み物",
+        "language": "言語",
     },
     "es": {
-        "welcome": "WELCOME",
+        "welcome": "BIENVENIDO",
         "intro": "Experiencia sensorial",
+        "app_title": "Experiencia Tabla YVORA",
+        "identify": "Identifíquese para iniciar la experiencia",
         "start": "Entrar en la experiencia",
         "name": "Nombre",
         "name_placeholder": "Ingrese su nombre",
@@ -160,40 +184,39 @@ BASE_TRANSLATIONS = {
         "cheese": "Queso",
         "together": "Combinación",
         "together_note": "Pruebe los elementos juntos",
+        "wine": "Vino",
+        "drink": "Bebida",
+        "language": "Idioma",
     },
 }
 
 
-def safe(value):
+def safe(value: Any) -> str:
     if value is None:
         return ""
     return str(value).strip()
 
 
-def current_language():
-    return st.session_state.get("language", "pt")
+def current_language() -> str:
+    language = safe(st.session_state.get("language", "pt"))
+    return language if language in LANGUAGES else "pt"
 
 
-def tr(key):
-    lang = current_language()
-
-    return (
-        BASE_TRANSLATIONS.get(lang, {}).get(key)
-        or BASE_TRANSLATIONS["pt"].get(key)
-        or key
-    )
+def tr(key: str) -> str:
+    language = current_language()
+    return UI_TEXT.get(language, {}).get(key) or UI_TEXT["pt"].get(key) or key
 
 
-def localized(row, field, fallback=""):
-    lang = current_language()
+def localized(row: Dict[str, Any], field: str, fallback: str = "") -> str:
+    language = current_language()
 
-    if lang == "pt":
-        return safe(row.get(field, fallback))
+    if language == "pt":
+        return safe(row.get(field) or fallback)
 
-    localized_field = f"{field}_{lang}"
+    translated_field = f"{field}_{language}"
 
     return safe(
-        row.get(localized_field)
+        row.get(translated_field)
         or row.get(field)
         or fallback
     )
