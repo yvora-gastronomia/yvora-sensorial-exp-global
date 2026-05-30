@@ -12,6 +12,12 @@ LOGO_PATHS = [
     "logo.png", "logo.jpg", "assets/yvora_logo.png", "assets/yvora_logo.jpg",
 ]
 
+DEFAULT_LABELS = [
+    "ELEMENTO", "ABERTURA", "BRASILIDADE", "PERCEPÇÃO GUIADA", "ENCONTRO",
+    "VINHO", "BEBIDA", "O QUE ESTA JORNADA REVELA", "AGORA É COM VOCÊ",
+    "CELEBRAÇÃO", "EXPERIÊNCIA", "CONCLUSÃO",
+]
+
 
 def esc(value: Any) -> str:
     return escape(safe(value))
@@ -30,15 +36,19 @@ def logo_path() -> Optional[str]:
 
 
 def story_blocks(text: str) -> List[Tuple[str, str]]:
-    config = UI_TEXT[current_language()]
-    labels = config["labels"]
+    config = UI_TEXT.get(current_language(), UI_TEXT.get("pt", {}))
+    labels = config.get("labels") or UI_TEXT.get("pt", {}).get("labels") or DEFAULT_LABELS
+    fallback_block = config.get("fallback_block") or UI_TEXT.get("pt", {}).get("fallback_block") or "RITUAL"
+    clean_text = safe(text)
+    if not clean_text:
+        return []
     pattern = r"(" + "|".join(re.escape(label) for label in labels) + r")\s*\|"
-    parts = re.split(pattern, safe(text))
+    parts = re.split(pattern, clean_text)
     if len(parts) <= 1:
-        return [(config["fallback_block"], safe(text))]
+        return [(fallback_block, clean_text)]
     blocks: List[Tuple[str, str]] = []
     if parts[0].strip():
-        blocks.append((config["fallback_block"], parts[0].strip()))
+        blocks.append((fallback_block, parts[0].strip()))
     for index in range(1, len(parts), 2):
         body = parts[index + 1].strip() if index + 1 < len(parts) else ""
         if body:
@@ -50,7 +60,7 @@ def language_selector() -> None:
     options = list(LANGUAGES.keys())
     selected = st.radio(
         tr("language"), options, horizontal=True,
-        index=options.index(current_language()),
+        index=options.index(current_language()) if current_language() in options else 0,
         format_func=lambda value: LANGUAGES[value], key="language_widget",
     )
     if selected != current_language():
